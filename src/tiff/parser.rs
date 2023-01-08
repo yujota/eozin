@@ -96,7 +96,7 @@ impl TiffParser {
             Classic(_) => 12,
             Big(_) => 20,
         };
-        for buf in i.chunks(12) {
+        for buf in i.chunks(num_chunks) {
             match self.entry(buf) {
                 Ok((t, DataEntry(d))) => {
                     entries.insert(t, d);

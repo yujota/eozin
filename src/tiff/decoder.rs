@@ -25,6 +25,7 @@ pub(in crate::tiff) fn decode_file(mut file: File) -> Result<Tiff, TiffError> {
         let (mut entries, data_offsets, _errors) = p.ifd_body(&buf);
         let buf =
             read_bytes(&mut file, next_ofs, next_ofs_end).ok_or(format_error("io error 4"))?;
+        println!("Entries! {:?}", &entries);
         for (tag, d) in data_offsets.into_iter() {
             println!("== tag {:?}, ofs {:?}", tag, d);
             let buf_size = d.data_type.size() * d.count;

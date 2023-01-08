@@ -1,4 +1,5 @@
 pub mod aperio;
+pub mod reader;
 pub mod tiff;
 
 pub fn add(left: usize, right: usize) -> usize {

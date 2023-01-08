@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+pub(in crate::tiff) type Tiff = Vec<IFD>;
 pub(in crate::tiff) type Tag = u16;
 pub(in crate::tiff) type IFD = HashMap<Tag, Data>;
 
