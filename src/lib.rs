@@ -1,6 +1,6 @@
-pub mod aperio;
-pub mod reader;
-pub mod tiff;
+pub mod sync;
+pub(crate) mod tiff;
+pub(crate) mod vendor;
 
 pub fn add(left: usize, right: usize) -> usize {
     left + right

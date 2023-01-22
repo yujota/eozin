@@ -1,10 +1,8 @@
+use self::{Bytes::*, ParseTiffError::*, ParseTiffError::*, Parser::*};
+use super::data::{Data, Data::*, DataType, DataType::*};
 use std::collections::HashMap;
-
-use crate::tiff::error::{format_error, TiffError};
-use crate::tiff::types::{
-    BytesParser, BytesParser::*, Data, Data::*, DataOffset, DataType, DataType::*, Entry, Entry::*,
-    TiffParser, TiffParser::*,
-};
+use std::error::Error;
+use std::fmt;
 
 type Tag = u16;
 type Count = u64;
@@ -14,168 +12,178 @@ type IfdBodyEnd = u64;
 type NextIfdOffsetStart = u64;
 type NextIfdOffsetEnd = u64;
 
-#[allow(dead_code)]
-impl TiffParser {
-    pub(in crate::tiff) fn num_entry(&self, i: &[u8]) -> Result<u64, TiffError> {
-        match *self {
-            Classic(p) => Ok(p.u16(i).unwrap() as u64),
-            Big(p) => Ok(p.u64(i).unwrap()),
-        }
-    }
+type Address = u64;
+type Len = u64;
 
-    pub(in crate::tiff) fn next_ifd(&self, i: &[u8]) -> Result<Option<u64>, TiffError> {
-        match *self {
-            Classic(p) => {
-                if i.len() < 4 {
-                    None
-                } else {
-                    p.u32(i).map(|x| x as u64)
-                }
-            }
-            Big(p) => {
-                if i.len() < 8 {
-                    None
-                } else {
-                    p.u64(i)
-                }
-            }
-        }
-        .ok_or(format_error("Failed to parse next_ifd"))
-        .map(|x| if x == 0 { None } else { Some(x) })
-    }
+#[derive(Debug)]
+pub(crate) enum ParseTiffError {
+    BrokenTiffHeader(String),
+    UnknownFormat(String),
+    InsufficientBufferLength(u64),
+}
 
-    pub(in crate::tiff) fn ifd_header(
-        &self,
-        current_offset: u64,
-        i: &[u8],
-    ) -> Result<
-        (
-            Count,
-            (IfdBodyStart, IfdBodyEnd),
-            (NextIfdOffsetStart, NextIfdOffsetEnd),
-        ),
-        TiffError,
-    > {
-        let co = current_offset;
-        match *self {
-            Classic(p) => {
-                if i.len() < 2 {
-                    Err(format_error("Insufficiant input"))
-                } else {
-                    let count = p
-                        .u16(&i[0..2])
-                        .map(|x| x as u64)
-                        .ok_or(format_error("Insufficiant input"))?;
-                    println!("======== count {:?} ===", count);
-                    let body_ofs = co + 2;
-                    let next_ifd = body_ofs + 12 * count;
-                    Ok((count, (body_ofs, next_ifd), (next_ifd, next_ifd + 4)))
-                }
-            }
-            Big(p) => {
-                if i.len() < 8 {
-                    Err(format_error("Insufficiant input"))
-                } else {
-                    let count = p.u64(&i[0..8]).ok_or(format_error("Insufficiant input"))?;
-                    let body_ofs = co + 8;
-                    let next_ifd = body_ofs + 20 * count;
-                    Ok((count, (body_ofs, next_ifd), (next_ifd, next_ifd + 8)))
-                }
-            }
-        }
+impl fmt::Display for ParseTiffError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "hogehoge");
+        Ok(())
     }
+}
+impl Error for ParseTiffError {}
 
-    pub(in crate::tiff) fn ifd_body(
-        &self,
-        i: &[u8],
-    ) -> (HashMap<Tag, Data>, Vec<(Tag, DataOffset)>, Vec<TiffError>) {
-        let mut entries = HashMap::new();
-        let mut offsets = Vec::new();
-        let mut errors = Vec::new();
-        let num_chunks = match *self {
-            Classic(_) => 12,
-            Big(_) => 20,
+fn broken_header(s: &str) -> ParseTiffError {
+    BrokenTiffHeader(s.to_string())
+}
+
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub(crate) enum Bytes {
+    Intel,
+    Moto,
+}
+
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub(crate) enum Parser {
+    Classic(Bytes),
+    Big(Bytes),
+}
+
+pub(crate) struct IfdHeader {
+    pub(crate) count: u64,
+    pub(crate) ifd_body: (u64, u64),
+}
+
+#[derive(Debug, PartialEq, Copy, Clone)]
+pub(crate) struct Size {
+    pub ifd_header: u64,
+    ent_size: u64,
+    next_ifd_ofs_size: u64,
+}
+
+impl Size {
+    pub(crate) fn ifd_body(&self, c: u64) -> u64 {
+        c * self.ent_size + self.next_ifd_ofs_size
+    }
+}
+impl Parser {
+    pub(crate) fn header(i: &[u8]) -> Result<(Self, Offset), ParseTiffError> {
+        let bp = match Moto.u16(&i[0..2]).unwrap() {
+            18761 => {
+                // Little endian(Intel) 18761 == 0x49, 0x49
+                Intel
+            }
+            19789 => {
+                // Big endian(Motorola) 19789 == 0x4d, 0x4d
+                Moto
+            }
+            dbg => {
+                return Err(BrokenTiffHeader(
+                    format!("Unknown endian: {:?}", dbg).to_string(),
+                ))
+            }
         };
-        for buf in i.chunks(num_chunks) {
-            match self.entry(buf) {
-                Ok((t, DataEntry(d))) => {
-                    entries.insert(t, d);
-                }
-                Ok((t, OffsetEntry(ofs))) => {
-                    offsets.push((t, ofs));
-                }
-                Err(tiff_error) => {
-                    errors.push(tiff_error);
+        match bp.u16(&i[2..4]).unwrap() {
+            42 => {
+                let next_ifd = bp.u32(&i[4..8]).unwrap() as u64;
+                Ok((Classic(bp), next_ifd))
+            }
+            43 => {
+                let i = &i[4..16];
+                let (always_8, always_0) = (bp.u16(&i[..2]).unwrap(), bp.u16(&i[2..4]).unwrap());
+                if always_8 == 8 && always_0 == 0 {
+                    let next_ifd = bp.u64(&i[4..12]).unwrap();
+                    Ok((Big(bp), next_ifd))
+                } else {
+                    Err(BrokenTiffHeader("Unknown tff version".to_string()))
                 }
             }
+            _ => Err(BrokenTiffHeader("Unknown tff version".to_string())),
         }
-        (entries, offsets, errors)
     }
 
-    pub(in crate::tiff) fn entry(&self, i: &[u8]) -> Result<(Tag, Entry), TiffError> {
+    pub(crate) fn size(&self) -> Size {
+        match *self {
+            Classic(_) => Size {
+                ifd_header: 2,
+                next_ifd_ofs_size: 4,
+                ent_size: 12,
+            },
+            Big(_) => Size {
+                ifd_header: 8,
+                next_ifd_ofs_size: 8,
+                ent_size: 20,
+            },
+        }
+    }
+
+    pub(crate) fn ifd_count(&self, i: &[u8]) -> Result<u64, ParseTiffError> {
+        // TODO: "23 Jan-23"
+        match *self {
+            Classic(p) => p
+                .u16(i)
+                .map(|x| x as u64)
+                .ok_or(InsufficientBufferLength(2)),
+
+            Big(p) => p.u64(i).ok_or(InsufficientBufferLength(8)),
+        }
+    }
+
+    pub(crate) fn ifd_body(
+        &self,
+        i: &[u8],
+        entries: &mut HashMap<Tag, Data>,
+        unloaded: &mut Vec<(Tag, Count, DataType, Address, Len)>,
+    ) -> Result<Option<Address>, ParseTiffError> {
         match *self {
             Classic(p) => {
-                let tag = p.u16(&i[..2]).unwrap();
-                let data_type = p
-                    .u16(&i[2..4])
-                    .and_then(DataType::from_u16)
-                    .ok_or(format_error("Unknown data type"))?;
-                let count = p.u32(&i[4..8]).unwrap() as u64;
-                if data_type.size() * count <= 4 {
-                    self.entry_data(count, data_type, &i[8..12])
-                        .map(move |d| (tag, DataEntry(d)))
-                } else {
-                    let offset = p.u32(&i[8..12]).unwrap() as u64;
-                    Ok((
-                        tag,
-                        OffsetEntry(DataOffset {
-                            data_type,
-                            count,
-                            offset,
-                        }),
-                    ))
+                for j in i.chunks(12) {
+                    let tag = p.u16(&j[..2]).unwrap();
+                    if let Some(dt) = p.u16(&j[2..4]).and_then(DataType::from_u16) {
+                        let count = p.u32(&j[4..8]).unwrap() as u64;
+                        let len = dt.size() * count;
+                        if len <= 4 {
+                            let data = self.entry(count, dt, &j[8..12])?;
+                            entries.insert(tag, data);
+                        } else {
+                            let offset = p.u32(&j[8..12]).unwrap() as u64;
+                            unloaded.push((tag, count, dt, offset, len));
+                        }
+                    } else {
+                        continue;
+                    }
                 }
+                let idx = (i.len() / 12) * 12;
+                Ok(p.u32(&i[idx..idx + 4])
+                    .and_then(|x| if x == 0 { None } else { Some(x as u64) }))
             }
             Big(p) => {
-                let tag = p.u16(&i[..2]).unwrap();
-                let data_type = p
-                    .u16(&i[2..4])
-                    .and_then(DataType::from_u16)
-                    .ok_or(format_error("Unknown data type"))?;
-                let count = p.u64(&i[4..12]).unwrap();
-                if data_type.size() * count <= 8 {
-                    self.entry_data(count, data_type, &i[12..20])
-                        .map(move |d| (tag, DataEntry(d)))
-                } else {
-                    let offset = p.u64(&i[12..20]).unwrap();
-                    Ok((
-                        tag,
-                        OffsetEntry(DataOffset {
-                            data_type,
-                            count,
-                            offset,
-                        }),
-                    ))
+                for j in i.chunks(20) {
+                    let tag = p.u16(&j[..2]).unwrap();
+                    if let Some(dt) = p.u16(&j[2..4]).and_then(DataType::from_u16) {
+                        let count = p.u64(&j[4..12]).unwrap();
+                        let len = dt.size() * count;
+                        if len <= 8 {
+                            let data = self.entry(count, dt, &j[12..20])?;
+                            entries.insert(tag, data);
+                        } else {
+                            let offset = p.u64(&j[12..20]).unwrap();
+                            unloaded.push((tag, count, dt, offset, len));
+                        }
+                    } else {
+                        // Skipping undefined data_type
+                        continue;
+                    }
                 }
+                let idx = (i.len() / 20) * 20;
+                Ok(p.u64(&i[idx..idx + 8])
+                    .and_then(|x| if x == 0 { None } else { Some(x) }))
             }
         }
     }
-
-    pub(in crate::tiff) fn entry_data(
-        &self,
-        count: u64,
-        data_type: DataType,
-        i: &[u8],
-    ) -> Result<Data, TiffError> {
-        let dt_debug = data_type.clone();
-        if data_type.size() * count > i.len() as u64 {
-            return Err(format_error("Buffer is not enough"));
-        }
+    pub(crate) fn entry(&self, c: u64, dt: DataType, i: &[u8]) -> Result<Data, ParseTiffError> {
         let p = match *self {
             Classic(p) => p,
             Big(p) => p,
         };
-        match (data_type, count) {
+        match (dt, c) {
             (BYTE, 1) => p.u8(i).map(Byte),
             (BYTE, n) => p.u8_vec(n, i).map(ByteVec),
             (UNDEFINED, 1) => p.u8(i).map(Undefined),
@@ -193,16 +201,32 @@ impl TiffParser {
             (RATIONAL, c) => p.rational_vec(c, i).map(RationalVec),
             _ => None,
         }
-        .ok_or(format_error(&format!(
-            "DataType is not supported {:?}",
-            dt_debug
-        )))
+        .ok_or(InsufficientBufferLength(0))
     }
 }
 
+#[cfg(test)]
+mod tests_tiff_parser {
+    use super::*;
+
+    #[test]
+    fn test_header_classic_intel() {
+        let buf = [0x49, 0x49, 0x2A, 0x00, 0x09, 0x00, 0x00, 0x00];
+        let result = Parser::header(&buf);
+        match result {
+            Ok((parser, next_ifd)) => {
+                assert_eq!(parser, Classic(Intel));
+                assert_eq!(next_ifd, 9);
+            }
+            _ => {
+                assert!(false, "Failed to parse header");
+            }
+        }
+    }
+}
 #[allow(dead_code)]
-impl BytesParser {
-    pub(in crate::tiff) fn ascii(&self, n: u64, i: &[u8]) -> Option<String> {
+impl Bytes {
+    fn ascii(&self, n: u64, i: &[u8]) -> Option<String> {
         let n = n as usize;
         if i.len() < n {
             return None;
@@ -216,7 +240,7 @@ impl BytesParser {
         }
     }
 
-    pub(in crate::tiff) fn rational(&self, i: &[u8]) -> Option<(u32, u32)> {
+    fn rational(&self, i: &[u8]) -> Option<(u32, u32)> {
         if i.len() >= 8 {
             match (self.u32(&i[0..4]), self.u32(&i[4..8])) {
                 (Some(numer), Some(denom)) => Some((numer, denom)),
@@ -227,7 +251,7 @@ impl BytesParser {
         }
     }
 
-    pub(in crate::tiff) fn rational_vec(&self, n: u64, i: &[u8]) -> Option<Vec<(u32, u32)>> {
+    fn rational_vec(&self, n: u64, i: &[u8]) -> Option<Vec<(u32, u32)>> {
         let n = n as usize;
         if i.len() < n * 2 {
             return None;
@@ -238,7 +262,7 @@ impl BytesParser {
         }))
     }
 
-    pub(in crate::tiff) fn u8(&self, i: &[u8]) -> Option<u8> {
+    fn u8(&self, i: &[u8]) -> Option<u8> {
         if i.len() < 1 {
             None
         } else {
@@ -246,7 +270,7 @@ impl BytesParser {
         }
     }
 
-    pub(in crate::tiff) fn u8_vec(&self, n: u64, i: &[u8]) -> Option<Vec<u8>> {
+    fn u8_vec(&self, n: u64, i: &[u8]) -> Option<Vec<u8>> {
         let n = n as usize;
         if i.len() < n {
             return None;
@@ -255,7 +279,7 @@ impl BytesParser {
         }
     }
 
-    pub(in crate::tiff) fn u16(&self, i: &[u8]) -> Option<u16> {
+    fn u16(&self, i: &[u8]) -> Option<u16> {
         if i.len() < 2 {
             return None;
         }
@@ -265,7 +289,7 @@ impl BytesParser {
         }
     }
 
-    pub(in crate::tiff) fn u16_vec(&self, n: u64, i: &[u8]) -> Option<Vec<u16>> {
+    fn u16_vec(&self, n: u64, i: &[u8]) -> Option<Vec<u16>> {
         let n = n as usize;
         if i.len() < n * 2 {
             return None;
@@ -276,7 +300,7 @@ impl BytesParser {
         }))
     }
 
-    pub(in crate::tiff) fn u32(&self, i: &[u8]) -> Option<u32> {
+    pub(crate) fn u32(&self, i: &[u8]) -> Option<u32> {
         if i.len() < 4 {
             return None;
         }
@@ -290,7 +314,7 @@ impl BytesParser {
         }
     }
 
-    pub(in crate::tiff) fn u32_vec(&self, n: u64, i: &[u8]) -> Option<Vec<u32>> {
+    fn u32_vec(&self, n: u64, i: &[u8]) -> Option<Vec<u32>> {
         let n = n as usize;
         if i.len() < n * 4 {
             return None;
@@ -301,7 +325,7 @@ impl BytesParser {
         }))
     }
 
-    pub(in crate::tiff) fn u64(&self, i: &[u8]) -> Option<u64> {
+    pub(crate) fn u64(&self, i: &[u8]) -> Option<u64> {
         if i.len() < 8 {
             return None;
         }
@@ -329,7 +353,7 @@ impl BytesParser {
         }
     }
 
-    pub(in crate::tiff) fn u64_vec(&self, n: u64, i: &[u8]) -> Option<Vec<u64>> {
+    fn u64_vec(&self, n: u64, i: &[u8]) -> Option<Vec<u64>> {
         let n = n as usize;
         if i.len() < n * 8 {
             return None;

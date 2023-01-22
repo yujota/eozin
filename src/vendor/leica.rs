@@ -1,27 +1,15 @@
-use crate::tiff::decoder;
-use crate::tiff::types::{Data::Ascii, KnownTag, Tiff, IFD};
+use crate::tiff::{tag, Data::Ascii, Tiff};
 use regex::Regex;
 use roxmltree;
-use std::fs::File;
 
-pub(crate) fn check_compatible(file: File) -> bool {
-    match decoder::decode_file(file) {
-        Ok(tiff) => is_compatible(&tiff),
-        Err(e) => {
-            println!("Error while calling level_count {:?}", e);
-            false
-        }
-    }
-}
-
-pub(in crate::tiff) fn is_compatible(tiff: &Tiff) -> bool {
+pub(crate) fn is_compatible(tiff: &Tiff) -> bool {
     let num_ifd = tiff.len();
     match tiff.get(0) {
         Some(d) => {
-            let is_tile = d.contains_key(&(KnownTag::TileOffsets as u16));
-            let img_desc = d.contains_key(&(KnownTag::ImageDescription as u16));
-            let img_desc_str = d.get(&(KnownTag::ImageDescription as u16));
-            let has_valid_leica_xml = match d.get(&(KnownTag::ImageDescription as u16)) {
+            let is_tile = d.contains_key(&tag::TileOffsets);
+            let img_desc = d.contains_key(&tag::ImageDescription);
+            let img_desc_str = d.get(&tag::ImageDescription);
+            let has_valid_leica_xml = match d.get(&tag::ImageDescription) {
                 Some(Ascii(l)) => check_leica_xml(l),
                 _ => false,
             };

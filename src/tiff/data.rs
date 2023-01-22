@@ -1,36 +1,24 @@
 use std::collections::HashMap;
 
-pub(in crate::tiff) type Tiff = Vec<IFD>;
-pub(in crate::tiff) type Tag = u16;
-pub(in crate::tiff) type IFD = HashMap<Tag, Data>;
+pub(crate) type Tiff = Vec<IFD>;
+pub(crate) type Tag = u16;
+pub(crate) type IFD = HashMap<Tag, Data>;
 
-pub(in crate::tiff) enum Entry {
+pub(crate) enum Entry {
     DataEntry(Data),
     OffsetEntry(DataOffset),
 }
 
 #[derive(Debug, PartialEq, Clone)]
-pub(in crate::tiff) struct DataOffset {
+pub(crate) struct DataOffset {
     pub data_type: DataType,
     pub count: u64,
     pub offset: u64,
 }
 
-#[derive(Debug, PartialEq, Copy, Clone)]
-pub(in crate::tiff) enum BytesParser {
-    Intel,
-    Moto,
-}
-
-#[derive(Debug, PartialEq, Copy, Clone)]
-pub(in crate::tiff) enum TiffParser {
-    Classic(BytesParser),
-    Big(BytesParser),
-}
-
 #[allow(dead_code)]
 #[derive(Debug, PartialEq)]
-pub(in crate::tiff) enum Data {
+pub(crate) enum Data {
     Byte(u8),
     Ascii(String),
     Short(u16),
@@ -68,7 +56,7 @@ pub(in crate::tiff) enum Data {
 #[allow(dead_code)]
 #[allow(non_camel_case_types)]
 #[derive(Debug, PartialEq, Clone)]
-pub(in crate::tiff) enum DataType {
+pub(crate) enum DataType {
     BYTE, // uint8
     ASCII,
     SHORT, // uint16
@@ -140,27 +128,4 @@ impl DataType {
             RATIONAL | SRATIONAL | DOUBLE | LONG8 | SLONG8 | IFD8 => 8,
         }
     }
-}
-
-#[allow(dead_code)]
-#[repr(u16)]
-pub(in crate::tiff) enum KnownTag {
-    ImageWidth = 256,
-    ImageLength = 257,
-    BitPerSample = 258,
-    Compression = 259,
-    PhotometricInterpretation = 262,
-    ImageDescription = 270,
-    StripOffsets = 273,
-    Orientation = 274,
-    SamplesPerPixel = 277,
-    RowsPerStrip = 278,
-    StripByteCounts = 279,
-    PlanarConfiguration = 284,
-    Predictor = 317,
-    TileWidth = 322,
-    TileLength = 323,
-    TileOffsets = 324,
-    TileByteCounts = 325,
-    JPEGTables = 347,
 }
