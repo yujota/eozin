@@ -1,4 +1,4 @@
-use self::{Bytes::*, ParseTiffError::*, ParseTiffError::*, Parser::*};
+use self::{Bytes::*, ParseTiffError::*, Parser::*};
 use super::data::{Data, Data::*, DataType, DataType::*};
 use std::collections::HashMap;
 use std::error::Error;
@@ -7,32 +7,33 @@ use std::fmt;
 type Tag = u16;
 type Count = u64;
 type Offset = u64;
-type IfdBodyStart = u64;
-type IfdBodyEnd = u64;
-type NextIfdOffsetStart = u64;
-type NextIfdOffsetEnd = u64;
 
 type Address = u64;
 type Len = u64;
 
 #[derive(Debug)]
 pub(crate) enum ParseTiffError {
-    BrokenTiffHeader(String),
-    UnknownFormat(String),
-    InsufficientBufferLength(u64),
+    TiffHeaderBroken(String),
+    TiffEntryBroken(String),
+    BufferLengthNotEnough(u64),
 }
 
 impl fmt::Display for ParseTiffError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "hogehoge");
+        match self {
+            TiffHeaderBroken(s) => write!(f, "Parsing tiff header is failed: {}", s).unwrap(),
+            TiffEntryBroken(s) => write!(f, "Parsing tiff entry is failed: {}", s).unwrap(),
+            BufferLengthNotEnough(s) => write!(
+                f,
+                "During parsing tiff provided buffer size is not enough need at least {}",
+                s
+            )
+            .unwrap(),
+        }
         Ok(())
     }
 }
 impl Error for ParseTiffError {}
-
-fn broken_header(s: &str) -> ParseTiffError {
-    BrokenTiffHeader(s.to_string())
-}
 
 #[derive(Debug, PartialEq, Copy, Clone)]
 pub(crate) enum Bytes {
@@ -44,11 +45,6 @@ pub(crate) enum Bytes {
 pub(crate) enum Parser {
     Classic(Bytes),
     Big(Bytes),
-}
-
-pub(crate) struct IfdHeader {
-    pub(crate) count: u64,
-    pub(crate) ifd_body: (u64, u64),
 }
 
 #[derive(Debug, PartialEq, Copy, Clone)]
@@ -74,11 +70,7 @@ impl Parser {
                 // Big endian(Motorola) 19789 == 0x4d, 0x4d
                 Moto
             }
-            dbg => {
-                return Err(BrokenTiffHeader(
-                    format!("Unknown endian: {:?}", dbg).to_string(),
-                ))
-            }
+            dbg => return Err(TiffHeaderBroken(format!("Unknown endian: {:?}", dbg))),
         };
         match bp.u16(&i[2..4]).unwrap() {
             42 => {
@@ -92,10 +84,10 @@ impl Parser {
                     let next_ifd = bp.u64(&i[4..12]).unwrap();
                     Ok((Big(bp), next_ifd))
                 } else {
-                    Err(BrokenTiffHeader("Unknown tff version".to_string()))
+                    Err(TiffHeaderBroken("Unknown tff version".to_string()))
                 }
             }
-            _ => Err(BrokenTiffHeader("Unknown tff version".to_string())),
+            _ => Err(TiffHeaderBroken("Unknown tff version".to_string())),
         }
     }
 
@@ -115,14 +107,10 @@ impl Parser {
     }
 
     pub(crate) fn ifd_count(&self, i: &[u8]) -> Result<u64, ParseTiffError> {
-        // TODO: "23 Jan-23"
         match *self {
-            Classic(p) => p
-                .u16(i)
-                .map(|x| x as u64)
-                .ok_or(InsufficientBufferLength(2)),
+            Classic(p) => p.u16(i).map(|x| x as u64).ok_or(BufferLengthNotEnough(2)),
 
-            Big(p) => p.u64(i).ok_or(InsufficientBufferLength(8)),
+            Big(p) => p.u64(i).ok_or(BufferLengthNotEnough(8)),
         }
     }
 
@@ -183,25 +171,30 @@ impl Parser {
             Classic(p) => p,
             Big(p) => p,
         };
-        match (dt, c) {
-            (BYTE, 1) => p.u8(i).map(Byte),
-            (BYTE, n) => p.u8_vec(n, i).map(ByteVec),
-            (UNDEFINED, 1) => p.u8(i).map(Undefined),
-            (UNDEFINED, n) => p.u8_vec(n, i).map(UndefinedVec),
-            (SHORT, 1) => p.u16(i).map(Short),
-            (SHORT, n) => p.u16_vec(n, i).map(ShortVec),
-            (LONG, 1) => p.u32(i).map(Long),
-            (LONG, n) => p.u32_vec(n, i).map(LongVec),
-            (LONG8, 1) => p.u64(i).map(Long8),
-            (LONG8, n) => p.u64_vec(n, i).map(Long8Vec),
-            (IFD8, 1) => p.u64(i).map(Ifd8),
-            (IFD8, n) => p.u64_vec(n, i).map(Ifd8Vec),
-            (ASCII, n) => p.ascii(n, i).map(Ascii),
-            (RATIONAL, 1) => p.rational(i).map(|(n, d)| Rational { numer: n, denom: d }),
-            (RATIONAL, c) => p.rational_vec(c, i).map(RationalVec),
-            _ => None,
+        fn e(m: Option<Data>, s: &str) -> Result<Data, ParseTiffError> {
+            m.ok_or(TiffEntryBroken(s.to_string()))
         }
-        .ok_or(InsufficientBufferLength(0))
+        match (dt, c) {
+            (BYTE, 1) => e(p.u8(i).map(Byte), "byte"),
+            (BYTE, n) => e(p.u8_vec(n, i).map(ByteVec), "byte"),
+            (UNDEFINED, 1) => e(p.u8(i).map(Undefined), "undefined"),
+            (UNDEFINED, n) => e(p.u8_vec(n, i).map(UndefinedVec), "undefined"),
+            (SHORT, 1) => e(p.u16(i).map(Short), "short"),
+            (SHORT, n) => e(p.u16_vec(n, i).map(ShortVec), "short"),
+            (LONG, 1) => e(p.u32(i).map(Long), "long"),
+            (LONG, n) => e(p.u32_vec(n, i).map(LongVec), "long"),
+            (LONG8, 1) => e(p.u64(i).map(Long8), "long8"),
+            (LONG8, n) => e(p.u64_vec(n, i).map(Long8Vec), "long8"),
+            (IFD8, 1) => e(p.u64(i).map(Ifd8), "ifd8"),
+            (IFD8, n) => e(p.u64_vec(n, i).map(Ifd8Vec), "ifd8"),
+            (ASCII, n) => e(p.ascii(n, i).map(Ascii), "ascii"),
+            (RATIONAL, 1) => e(
+                p.rational(i).map(|(n, d)| Rational { numer: n, denom: d }),
+                "rational",
+            ),
+            (RATIONAL, c) => e(p.rational_vec(c, i).map(RationalVec), "rational"),
+            (dt, _) => e(None, &format!("data-type {:?} is not supported", dt)),
+        }
     }
 }
 

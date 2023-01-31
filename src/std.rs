@@ -1,10 +1,53 @@
-use self::TmpError::HogeError;
+use self::ErrorType::*;
 use crate::tiff::{jpeg_in_tiff, property, tag::*, Data, ParseTiffError, Parser, Tiff};
-use std::collections::HashMap;
-use std::error;
-use std::fmt;
-use std::fs::File;
-use std::io::{Read, Seek, SeekFrom, Write};
+use std::{
+    collections::HashMap,
+    error, fmt,
+    fs::File,
+    io,
+    io::{Read, Seek, SeekFrom},
+};
+
+#[derive(Debug)]
+pub struct EozinError {
+    t: ErrorType,
+}
+
+#[derive(Debug)]
+enum ErrorType {
+    IoError(io::Error),
+    TiffError(ParseTiffError),
+    ParseWsiError(String),
+    MiscError(String),
+}
+impl fmt::Display for EozinError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match &self.t {
+            IoError(e) => write!(f, "IO Error {}", e).unwrap(),
+            TiffError(e) => write!(f, "Parse Tiff Error {}", e).unwrap(),
+            ParseWsiError(e) => write!(
+                f,
+                "Couldn't interpret given tiff file as Whole Slide Image {}",
+                e
+            )
+            .unwrap(),
+            MiscError(e) => write!(f, "Error {}", e).unwrap(),
+        }
+        Ok(())
+    }
+}
+
+impl From<io::Error> for EozinError {
+    fn from(err: io::Error) -> EozinError {
+        EozinError { t: IoError(err) }
+    }
+}
+impl From<ParseTiffError> for EozinError {
+    fn from(err: ParseTiffError) -> EozinError {
+        EozinError { t: TiffError(err) }
+    }
+}
+impl error::Error for EozinError {}
 
 #[non_exhaustive]
 pub enum Tile {
@@ -20,6 +63,19 @@ impl Tile {
         }
     }
 }
+
+pub struct Eozin {
+    format: Format,
+    pub level_count: u64,
+    pub dimensions: (u64, u64),
+    pub level_dimensions: Vec<(u64, u64)>,
+    pub level_tile_sizes: Vec<(u64, u64)>,
+}
+
+enum Format {
+    FormatAperio(Aperio),
+}
+
 pub struct Aperio {
     data: Tiff,
     file: File,
@@ -27,6 +83,7 @@ pub struct Aperio {
     pub level_count: u64,
     pub dimensions: (u64, u64),
     pub level_dimensions: Vec<(u64, u64)>,
+    pub level_tile_sizes: Vec<(u64, u64)>,
 }
 
 struct AperioLevel {
@@ -35,12 +92,33 @@ struct AperioLevel {
     pub t: property::TiledIfd,
 }
 
+impl Eozin {
+    pub fn open(path: &str) -> Result<Self, EozinError> {
+        match Aperio::open(path) {
+            Ok(aperio) => Ok(Eozin {
+                level_count: aperio.level_count,
+                dimensions: aperio.dimensions.clone(),
+                level_dimensions: aperio.level_dimensions.clone(),
+                level_tile_sizes: aperio.level_tile_sizes.clone(),
+                format: Format::FormatAperio(aperio),
+            }),
+            Err(e) => Err(e),
+        }
+    }
+    pub fn read_tile(&mut self, lv: usize, x: usize, y: usize) -> Result<Tile, EozinError> {
+        match &mut self.format {
+            Format::FormatAperio(ap) => ap.read_tile(lv, x, y),
+        }
+    }
+}
+
 impl Aperio {
-    pub fn open(path: &str) -> Result<Self, Box<dyn error::Error>> {
+    pub fn open(path: &str) -> Result<Self, EozinError> {
         let mut file = File::open(path)?;
         let data = decode_file(&mut file)?;
         let mut levels = Vec::new();
         let mut level_dimensions = Vec::new();
+        let mut level_tile_sizes = Vec::new();
         let mut maybe_dimensions = None;
         for ifd in data.iter() {
             if ifd.contains_key(&TileOffsets) {
@@ -55,6 +133,7 @@ impl Aperio {
                 };
                 if let (Some(compression), Some(t)) = (maybe_cmp, property::tiled_ifd(ifd)) {
                     level_dimensions.push((t.width, t.height));
+                    level_tile_sizes.push((t.tile_width, t.tile_height));
                     maybe_dimensions = maybe_dimensions.or(Some((t.width, t.height)));
                     let lv = AperioLevel {
                         compression,
@@ -73,18 +152,16 @@ impl Aperio {
                 dimensions,
                 level_count: level_dimensions.len() as u64,
                 level_dimensions,
+                level_tile_sizes,
             })
         } else {
-            Err(Box::new(HogeError("no ifd".to_string())))
+            Err(EozinError {
+                t: MiscError("Coundn't find any IFD on input fileh".to_string()),
+            })
         }
     }
 
-    pub fn read_tile(
-        &mut self,
-        lv: usize,
-        x: usize,
-        y: usize,
-    ) -> Result<Tile, Box<dyn error::Error>> {
+    pub fn read_tile(&mut self, lv: usize, x: usize, y: usize) -> Result<Tile, EozinError> {
         let lv = self.levels.get(lv).ok_or(missing("level"))?;
         let num_tiles_across = (lv.t.width + lv.t.tile_width - 1) / lv.t.tile_width;
         let tile_id = (num_tiles_across as usize) * y + x;
@@ -109,7 +186,9 @@ impl Aperio {
                 println!("JP2k RGB");
                 Ok(Tile::Jp2k(buf))
             }
-            _ => Err(Box::new(HogeError("hoge".to_string()))),
+            _ => Err(EozinError {
+                t: MiscError("Unknown compression".to_string()),
+            }),
         }
     }
 }
@@ -122,33 +201,14 @@ fn u8vec(d: &Data) -> Option<&Vec<u8>> {
     }
 }
 
-fn to_u64(d: &Data) -> Option<u64> {
-    match d {
-        Data::Undefined(b) => Some(*b as u64),
-        Data::Byte(b) => Some(*b as u64),
-        Data::Short(b) => Some(*b as u64),
-        Data::Long(b) => Some(*b as u64),
-        Data::Long8(b) => Some(*b),
-        _ => None,
-    }
-}
-
 fn expect_short(d: &Data) -> Option<u16> {
     match d {
         Data::Short(b) => Some(*b),
         _ => None,
     }
 }
-/*
-pub fn read(path: &str) {
-    let mut file = File::open(path).unwrap();
-    match decode_file(file) {
-        Ok(tiff) => println!("{:?}", tiff),
-        Err(e) => println!("Error {:?}", e),
-    }
-}
-*/
-fn decode_file(file: &mut File) -> Result<Tiff, Box<dyn error::Error>> {
+
+fn decode_file(file: &mut File) -> Result<Tiff, EozinError> {
     let buf = read_bytes(file, 0, 16)?;
     let (p, ifd_offset) = Parser::header(&buf)?;
     let size = p.size();
@@ -172,13 +232,11 @@ fn decode_file(file: &mut File) -> Result<Tiff, Box<dyn error::Error>> {
             entries.insert(tag, data);
         }
         directories.push(entries);
-        println!("next_ifd:: {:?}", &next_ifd);
     }
-    println!("parser:: {:?}", &p);
     Ok(directories)
 }
 
-fn read_bytes(file: &mut File, start: u64, end: u64) -> Result<Vec<u8>, Box<dyn error::Error>> {
+fn read_bytes(file: &mut File, start: u64, end: u64) -> Result<Vec<u8>, EozinError> {
     let len = (end - start) as usize;
     let mut buffer = vec![0; len];
     file.seek(SeekFrom::Start(start))?;
@@ -186,26 +244,14 @@ fn read_bytes(file: &mut File, start: u64, end: u64) -> Result<Vec<u8>, Box<dyn 
     if l == len {
         Ok(buffer)
     } else {
-        Err(Box::new(TmpError::HogeError("hoge".to_string())))
+        Err(EozinError {
+            t: MiscError("Buffer length is not match".to_string()),
+        })
     }
 }
 
-fn missing(s: &str) -> TmpError {
-    TmpError::MissingError(s.to_string())
-}
-#[derive(Debug)]
-enum TmpError {
-    HogeError(String),
-    MissingError(String),
-}
-
-impl fmt::Display for TmpError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match self {
-            TmpError::HogeError(s) => write!(f, "hogeerror: {}", s),
-            TmpError::MissingError(s) => write!(f, "missing: {}", s),
-        }
+fn missing(s: &str) -> EozinError {
+    EozinError {
+        t: ParseWsiError(s.to_string()),
     }
 }
-
-impl error::Error for TmpError {}
