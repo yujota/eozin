@@ -11,4 +11,5 @@ crate-type = ['cdylib']
 
 [dependencies]
 pyo3 = { version = "0.17.3", features = ["extension-module"]}
+num = "0.4"
 eozin = { path = "../../eozin"}
