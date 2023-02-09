@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Eozin Wasm Example</title>
+  </head>
+  <body>
+    <script type="module">
+      import { default as wasm, level_count } from "./pkg/eozin_wasm.js";
+        wasm().then((module) => {
+          async function displayLevelCount() {
+            let url = "sample.svs";
+            const img = await fetch(url);
+            const blob = await img.blob();
+            const lv_count = await level_count(blob);
+            return lv_count
+          }
+          displayLevelCount().then(lv => console.log(lv))
+          alert("Hello, hello-wasm!");
+      });
+    </script>
+  </body>
+</html>
