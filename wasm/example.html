@@ -6,17 +6,24 @@
   </head>
   <body>
     <script type="module">
-      import { default as wasm, level_count } from "./pkg/eozin_wasm.js";
+      import { default as wasm, level_count, Eozin } from "./pkg/eozin_wasm.js";
         wasm().then((module) => {
           async function displayLevelCount() {
             let url = "sample.svs";
             const img = await fetch(url);
             const blob = await img.blob();
-            const lv_count = await level_count(blob);
-            return lv_count
+            const eozin = await new Eozin(blob);
+            return eozin
           }
-          displayLevelCount().then(lv => console.log(lv))
-          alert("Hello, hello-wasm!");
+          displayLevelCount().then(e => {
+            console.log(e.level_count);
+            e.read_tile(0, 13, 4).then(b => {
+              let image = new Image();
+              image.src = URL.createObjectURL(b);
+              document.body.appendChild(image);
+            }
+            )
+          })
       });
     </script>
   </body>
