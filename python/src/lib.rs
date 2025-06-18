@@ -5,14 +5,14 @@ use num::integer::div_mod_floor;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
 use pyo3::pycell::PyRefMut;
-use pyo3::types::PyBytes;
+use pyo3::types::{PyBytes, PyTuple, PyInt, PySequence};
 
 #[pyclass]
 struct Eozin {
     data: std::Eozin,
     #[pyo3(get)]
     level_count: u64,
-    #[pyo3(get)]
+    // #[pyo3(get)]
     level_dimensions: Vec<(u64, u64)>,
     #[pyo3(get)]
     dimensions: (u64, u64),
@@ -57,6 +57,13 @@ impl Eozin {
             dimensions: data.dimensions.clone(),
             data,
         })
+    }
+
+    #[getter]
+    fn get_level_dimensions(&self, py: Python) -> PyResult<Py<PyTuple>> {
+        let lv_dims = self.data.level_dimensions.clone();
+        let tuple = PyTuple::new(py, &lv_dims);
+        Ok(tuple.into())
     }
 
     fn read_tile(

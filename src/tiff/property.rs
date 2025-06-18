@@ -16,7 +16,7 @@ pub(crate) struct TiledIfd {
 
 pub(crate) fn tiled_ifd<'a>(ifd: &IFD) -> Option<TiledIfd> {
     let width = ifd.get(&ImageWidth).and_then(to_u64)?;
-    let height = ifd.get(&ImageWidth).and_then(to_u64)?;
+    let height = ifd.get(&ImageLength).and_then(to_u64)?;
     let tile_width = ifd.get(&TileWidth).and_then(to_u64)?;
     let tile_height = ifd.get(&TileLength).and_then(to_u64)?;
     let offsets = ifd.get(&TileOffsets).and_then(u64vec)?;

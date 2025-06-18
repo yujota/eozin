@@ -4,9 +4,9 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 
 fn sync_reader() {
-    let path = "../data/CMU-1.svs";
-    let path = "../data/JP2K-33003-1.svs";
-    let path = "../data/CMU-1-JP2K-33005.svs";
+    let path = "data/CMU-1.svs";
+    let path = "data/JP2K-33003-1.svs";
+    let path = "data/CMU-1-JP2K-33005.svs";
     // let path = "../data/CMU-1-Small-Region.svs";
     // let path = "../data/Leica-1.scn";
     // sreader::read(path);

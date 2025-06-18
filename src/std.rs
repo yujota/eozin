@@ -179,11 +179,11 @@ impl Aperio {
                 Ok(Tile::Jpeg(jpeg_tables))
             }
             (_, 33003) => {
-                println!("JP2k YCbCr");
+                // println!("JP2k YCbCr");
                 Ok(Tile::Jp2k(buf))
             }
             (_, 33005) => {
-                println!("JP2k RGB");
+                // println!("JP2k RGB");
                 Ok(Tile::Jp2k(buf))
             }
             _ => Err(EozinError {
