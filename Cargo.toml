@@ -1,21 +1,94 @@
+[workspace]
+members = [
+    ".",
+    "fuzz",
+    "examples/*",
+]
+exclude = [
+    "fuzz",
+]
+
+[workspace.package]
+version = "0.1.0-alpha.1"
+authors = ["Yuji Ota <yujota.oss@gmail.com>"]
+license = "BSD-3-Clause"
+edition = "2024"
+
 [package]
 name = "eozin"
-version = "0.1.0"
-edition = "2021"
+description = "A pure-Rust decoder library for digital pathology"
+documentation = ""
+readme = "README.md"
+homepage = "https://github.com/yujota/eozin"
+repository = "https://github.com/yujota/eozin"
+keywords = ["pathology", "image-decoder", "wasm", "medical"]
+categories = ["science::bioinformatics", "wasm", "multimedia::images"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
 
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[lib]
+crate-type = ["cdylib", "rlib"]
 
 [features]
-default = ["wasm"]
-wasm = ["wasm-bindgen", "web-sys", "js-sys", "wasm-bindgen-futures", "serde"]
-native = []
+default = ["std-io"]
+wasm-node = [
+    "dep:wasm-bindgen-futures", 
+    "dep:wasm-bindgen", 
+    "dep:js-sys", 
+    "dep:serde", 
+    "dep:tsify",
+    "jp2k",
+    "image",
+]
+wasm-web = [
+    "jp2k",
+    "image",
+    "dep:web-sys", 
+    "dep:wasm-bindgen-futures", 
+    "dep:wasm-bindgen", 
+    "dep:js-sys", 
+    "dep:serde", 
+    "dep:tsify",
+]
+jp2k = [
+    "dep:hayro-jpeg2000",
+    "dep:image",
+]
+std-io = []
+image = ["jp2k", "dep:image"]
 
 [dependencies]
-roxmltree = "0.17.0"
-regex = "1.7.0"
-wasm-bindgen = { version = "0.2.84", optional = true, features=["serde-serialize"]}
-web-sys = { version="0.3.61", features=["Blob", "BlobPropertyBag", "console", "ImageData", "File"], optional = true}
-js-sys = { version = "0.3.58", optional=true}
-wasm-bindgen-futures = { version = "0.4.31", optional=true}
-serde = { version = "1.0", features = ["derive"], optional=true }
+thiserror = "2.0.18"
+web-sys = { workspace=true, features=["Blob", "BlobPropertyBag", "console", "ImageData", "File"], optional = true}
+wasm-bindgen = { workspace=true, optional=true }
+wasm-bindgen-futures = { workspace=true, optional=true }
+js-sys = { workspace=true, optional=true }
+serde = { workspace=true, optional=true, features = ["derive"]}
+tsify = { workspace=true, optional=true }
+hayro-jpeg2000 = { workspace=true, optional=true }
+image = { workspace=true, optional=true }
+
+[workspace.dependencies]
+web-sys = "^0.3.91"
+wasm-bindgen = "^0.2.114"
+wasm-bindgen-futures = "^0.4.64"
+js-sys = "^0.3.91"
+serde = "^1.0.228"
+tsify = "^0.5.6"
+futures = "^0.3.32"
+hayro-jpeg2000 = "^0.3.4"
+image = "^0.25.10"
+
+
+[dev-dependencies]
+reqwest = { version = "^0.13.2", features = ["blocking"] }
+serde = { version = "^1.0", features = ["derive"] }
+toml = "1.1.1"

@@ -1,0 +1,25 @@
+[package]
+name = "eozin-fuzz"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[features]
+default = ["std-io"]
+std-io = ["eozin/std-io"]
+
+[dependencies]
+libfuzzer-sys = "0.4"
+eozin = { path = "../", default-features = false }
+
+[[bin]]
+name = "decode_fuzz"
+path = "fuzz_targets/decode_fuzz.rs"
+test = false
+doc = false
+bench = false

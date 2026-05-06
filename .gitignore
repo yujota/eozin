@@ -21,3 +21,10 @@ Cargo.lock
 
 #/target
 /Cargo.lock
+
+
+# Images
+*.svs
+*.jpg
+*.jpeg
+*.tiff
