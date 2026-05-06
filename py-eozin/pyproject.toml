@@ -14,7 +14,7 @@ license = { text = "BSD-3-Clause" }
 keywords = ["pathology", "wsi", "medical-imaging", "rust", "decoder"]
 classifiers = [
     "Topic :: Scientific/Engineering :: Image Processing",
-    "Topic :: Scientific/Engineering :: Medical Science Apps",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
     "License :: OSI Approved :: BSD License",
     "Programming Language :: Rust",
     "Programming Language :: Python :: 3",
