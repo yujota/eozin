@@ -1,0 +1,45 @@
+[build-system]
+requires = ["maturin>=1.13,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "eozin"
+requires-python = ">=3.8"
+authors = [
+    { name = "Yuji Ota", email = "yujota.oss@gmail.com" }
+]
+description = "A fast digital pathology image decoder powered by Rust"
+readme = "README.md"
+license = { text = "BSD-3-Clause" }
+keywords = ["pathology", "wsi", "medical-imaging", "rust", "decoder"]
+
+classifiers = [
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Medical Information Science",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Rust",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Operating System :: OS Independent",
+]
+dynamic = ["version"]
+dependencies = ["pillow"]
+
+[project.optional-dependencies]
+viewer = ["pyglet>=2.1.13"]
+
+[project.urls]
+Homepage = "https://github.com/yujota/eozin"
+Repository = "https://github.com/yujota/eozin.git"
+Issues = "https://github.com/yujota/eozin/issues"
+Documentation = "https://youruser.github.io/eozin/docs/"
+
+[tool.maturin]
+python-source = "python"
+module-name = "eozin._eozin_rs"

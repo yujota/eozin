@@ -3,6 +3,7 @@ members = [
     ".",
     "fuzz",
     "examples/*",
+    "py-eozin",
 ]
 exclude = [
     "fuzz",
