@@ -17,7 +17,6 @@ edition = "2024"
 [package]
 name = "eozin"
 description = "A pure-Rust decoder library for digital pathology"
-documentation = ""
 readme = "README.md"
 homepage = "https://github.com/yujota/eozin"
 repository = "https://github.com/yujota/eozin"
