@@ -1,0 +1,18 @@
+[package]
+name = "py-eozin"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+publish = false
+
+[lib]
+name = "eozin"
+crate-type = ["cdylib"]
+
+[dependencies]
+eozin = { path = "../", default-features = false, features = ["std-io"] }
+
+[dependencies.pyo3]
+version = "0.28.3"
+features = ["abi3-py38"]
