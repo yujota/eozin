@@ -12,11 +12,10 @@ description = "A fast digital pathology image decoder powered by Rust"
 readme = "README.md"
 license = { text = "BSD-3-Clause" }
 keywords = ["pathology", "wsi", "medical-imaging", "rust", "decoder"]
-
 classifiers = [
     "Topic :: Scientific/Engineering :: Image Processing",
-    "Topic :: Scientific/Engineering :: Medical Information Science",
-    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Medical Science Apps",
+    "License :: OSI Approved :: BSD License",
     "Programming Language :: Rust",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -27,6 +26,8 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
     "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
 ]
 dynamic = ["version"]
 dependencies = ["pillow"]
