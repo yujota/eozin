@@ -42,5 +42,5 @@ jobs:
         run: |
           for target in $(cargo fuzz list); do
             echo "Fuzzing target: $target"
-            cargo +nightly fuzz run $target -- -max_total_time=20
+            cargo +nightly fuzz run $target -- -max_total_time=20 -rss_limit_mb=4096 -max_len=524288 -runs=10000
           done
