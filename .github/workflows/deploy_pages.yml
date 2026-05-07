@@ -68,7 +68,7 @@ jobs:
         run: |
           cd js-eozin
           npm run docs
-          cp -r docs/api/* public/docs/js/
+          cp -r docs/api/* ../public/docs/js/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
