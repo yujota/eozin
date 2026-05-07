@@ -9,6 +9,8 @@
   "scripts": {
     "build:node": "node scripts/build.js @eozin/eozin-node",
     "build:web": "node scripts/build.js @eozin/eozin-web",
+    "build:node-dev": "node scripts/build.js @eozin/eozin-node-dev",
+    "build:web-dev": "node scripts/build.js @eozin/eozin-web-dev",
     "docs": "typedoc --name \"Eozin JS SDK v$(awk -F '\\\"' '/^version/ {print $2; exit}' ../Cargo.toml)\""
   },
   "devDependencies": {

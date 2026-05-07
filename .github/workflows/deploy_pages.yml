@@ -10,13 +10,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  build-python:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
       - name: Setup Public Folder
-        run: mkdir -p public/docs/js public/docs/python
+        run: mkdir -p public/docs/python
 
       - name: Build Python Docs (MkDocs)
         run: |
@@ -29,8 +29,54 @@ jobs:
         with:
           path: public
 
+  build-js:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Public Folder
+        run: mkdir -p public/docs/js
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install build script dependencies
+        run: |
+          cd js-eozin
+          npm ci
+
+      - name: Build Web Package(Dev mode)
+        run: |
+          cd js-eozin
+          node scripts/build.js @eozin/eozin-web-dev
+
+      - name: Build Node Package(Dev mode)
+        run: |
+          cd js-eozin
+          node scripts/build.js @eozin/eozin-node-dev
+
+      - name: Build JS Docs (TypeDoc)
+        run: |
+          cd js-eozin
+          npm run docs
+          cp -r docs/api/* public/docs/js/
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
   deploy:
-    needs: build
+    needs: [build-python, build-js]
 
     permissions:
       pages: write
