@@ -24,9 +24,10 @@ jobs:
           mkdocs build -f py-eozin/python/mkdocs.yml
           cp -r py-eozin/python/site/* public/docs/python/
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload JS part
+        uses: actions/upload-artifact@v4
         with:
+          name: all-docs
           path: public
 
   build-js:
@@ -70,9 +71,10 @@ jobs:
           npm run docs
           cp -r docs/api/* ../public/docs/js/
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Upload JS part
+        uses: actions/upload-artifact@v4
         with:
+          name: all-docs
           path: public
 
   deploy:
@@ -88,6 +90,17 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
+      - name: Download all parts
+        uses: actions/download-artifact@v4
+        with:
+          name: all-docs
+          path: final_public
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: final_public
+      
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
