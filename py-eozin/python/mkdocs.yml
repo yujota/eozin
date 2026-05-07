@@ -1,0 +1,48 @@
+site_name: Eozin Python API
+site_url: https://eozin.org/docs/python/
+edit_uri: edit/main/py-eozin/python/docs/
+repo_name: yujota/eozin
+repo_url: https://github.com/yujota/eozin
+
+theme:
+  name: material
+  language: en
+  palette:
+    primary: indigo
+    accent: blue
+  features:
+    - navigation.tabs
+    - content.code.copy
+    - content.code.annotate
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_root_heading: true
+            show_source: false
+            merge_init_into_class: true
+            show_signature_annotations: true
+            separate_signature: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+      pygments_style: dracula
+      noclasses: false
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: dracula
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.inlinehilite:
+  - pymdownx.snippets:
+
+nav:
+  - Home: index.md
+  - API Reference: reference.md

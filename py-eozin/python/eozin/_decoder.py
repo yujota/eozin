@@ -15,14 +15,14 @@ class Eozin(object):
     """
     A high-performance digital pathology (WSI) image decoder implemented in Rust.
     """
-    def __init__(self, p: str) -> None:
+    def __init__(self, path: str) -> None:
         """
         Initializes the decoder from the specified file path.
 
         Args:
-            p: Path to the whole-slide image file.
+            path: Path to the whole-slide image file.
         """
-        self._dec = _Decoder(p)
+        self._dec = _Decoder(path)
 
     @property
     def level_count(self) -> int:
