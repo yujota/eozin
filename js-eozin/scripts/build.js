@@ -5,20 +5,30 @@ import { remark } from 'remark';
 import gfm from 'remark-gfm';
 import sortPackageJson from 'sort-package-json'
 
-const pkgName = process.argv[2]
+let pkgName = process.argv[2]
 
 let rustCmd = "";
 let pkgDir = "";
 
-console.log(pkgName);
+console.log(`Building: ${pkgName}`);
 switch (pkgName) {
   case "@eozin/eozin-web":
     pkgDir = "npm-packages/web";
     rustCmd = `wasm-pack build --target web --release --out-name eozin --out-dir ${pkgDir} -- --features web`;
     break;
+  case "@eozin/eozin-web-dev":
+    pkgDir = "npm-packages/web";
+    pkgName = "@eozin/eozin-web";
+    rustCmd = `wasm-pack build --target web --dev --no-opt --out-name eozin --out-dir ${pkgDir} -- --features web`;
+    break;
   case "@eozin/eozin-node":
     pkgDir = "npm-packages/node";
     rustCmd = `wasm-pack build --target nodejs --release --out-name eozin --out-dir ${pkgDir} -- --features node`;
+    break;
+  case "@eozin/eozin-node-dev":
+    pkgDir = "npm-packages/node";
+    pkgName = "@eozin/eozin-node";
+    rustCmd = `wasm-pack build --target nodejs --dev --no-opt --out-name eozin --out-dir ${pkgDir} -- --features node`;
     break;
 }
 

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "npm-packages/web/eozin.d.ts",
+    "npm-packages/node/eozin.d.ts",
+  ],
+  "entryPointStrategy": "resolve",
+  "out": "docs/api",
+  "name": "Eozin JS SDK Reference",
+  "includeVersion": false,
+  "excludeInternal": true,
+  "githubPages": true,
+  "skipErrorChecking": true,
+  "readme": "README.md"
+}

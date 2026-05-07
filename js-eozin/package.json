@@ -8,13 +8,16 @@
   "main": "index.js",
   "scripts": {
     "build:node": "node scripts/build.js @eozin/eozin-node",
-    "build:web": "node scripts/build.js @eozin/eozin-web"
+    "build:web": "node scripts/build.js @eozin/eozin-web",
+    "build:node-dev": "node scripts/build.js @eozin/eozin-node-dev",
+    "build:web-dev": "node scripts/build.js @eozin/eozin-web-dev",
+    "docs": "typedoc --name \"Eozin JS SDK v$(awk -F '\\\"' '/^version/ {print $2; exit}' ../Cargo.toml)\""
   },
   "devDependencies": {
-    "sort-package-json": "^3.6.1",
-    "typescript": "^6.0.2",
     "remark": "^15.0.1",
-    "remark-gfm": "^4.0.1"
-  },
-  "dependencies": {}
+    "remark-gfm": "^4.0.1",
+    "sort-package-json": "^3.6.1",
+    "typedoc": "^0.28.19",
+    "typescript": "^6.0.2"
+  }
 }
