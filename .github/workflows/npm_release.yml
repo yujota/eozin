@@ -1,0 +1,50 @@
+name: NPM Release
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install build script dependencies
+        run: |
+          cd js-eozin
+          npm ci
+
+      - name: Build and Publish Web Package
+        run: |
+          cd js-eozin
+          node scripts/build.js @eozin/eozin-web
+          cd npm-packages/web
+          npm publish --provenance --access public
+
+      - name: Build and Publish Node Package
+        run: |
+          cd js-eozin
+          node scripts/build.js @eozin/eozin-node
+          cd npm-packages/node
+          npm publish --provenance --access public
