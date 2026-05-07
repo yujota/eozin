@@ -1,0 +1,24 @@
+[package]
+name = "js-eozin"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+node = ["eozin/wasm-node"]
+web = ["eozin/wasm-web"]
+
+[dependencies]
+eozin = { path = "../", default-features = false }
+web-sys = { workspace=true, features=["HtmlCanvasElement", "CanvasRenderingContext2d","ImageBitmap", "MouseEvent", "WheelEvent", "Blob", "BlobPropertyBag", "console", "ImageData", "File", "Worker", "WorkerGlobalScope"] } 
+wasm-bindgen = { workspace=true }
+futures = { workspace=true }
+wasm-bindgen-futures = { version="^0.4.64" }
+serde = { version = "1.0.228", features = ["derive"] }
+js-sys = "0.3.95"
+tsify.workspace = true

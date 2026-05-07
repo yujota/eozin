@@ -20,60 +20,60 @@ pub struct DynamicDecoder {
 #[wasm_bindgen(js_class = Eozin)]
 impl DynamicDecoder {
     /// Constructs a new `DynamicDecoder` with a `Blob`.
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = withBlob)]
     pub async fn with_blob(blob: Blob) -> Result<DynamicDecoder, EozinError> {
         let decoder = DynamicDecoderBase::with_blob(blob).await?;
         Ok(DynamicDecoder { decoder })
     }
 
     /// Constructs a new `DynamicDecoder` with a `File`.
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = withFile)]
     pub async fn with_file(file: File) -> Result<DynamicDecoder, EozinError> {
         let decoder = DynamicDecoderBase::with_file(file).await?;
         Ok(DynamicDecoder { decoder })
     }
 
     /// Reads the tile at the specified level and coordinates.
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = readTile)]
     pub async fn read_tile(&self, lv: usize, x: usize, y: usize) -> Result<Tile, EozinError> {
         self.decoder.read_tile(lv, x, y).await
     }
 
     /// Returns the number of levels
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = levelCount, getter)]
     pub fn level_count(&self) -> usize {
         self.decoder.level_count()
     }
 
-    /// Returns the dimensions (width, height) of the image at the highest 
+    /// Returns the dimensions (width, height) of the image at the highest
     /// resolution (level 0).
-    #[wasm_bindgen]
+    #[wasm_bindgen(getter)]
     pub fn dimensions(&self) -> Dimension {
         self.decoder.dimensions()
     }
 
-    /// Returns the dimensions for each level as a vector of (width, height) 
+    /// Returns the dimensions for each level as a vector of (width, height)
     /// tuples, starting from level 0.
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = levelDimensions, getter)]
     pub fn level_dimensions(&self) -> Vec<Dimension> {
         self.decoder.level_dimensions()
     }
 
     /// Returns the nominal tile size (width, height) for each level.
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = levelTileSizes, getter)]
     pub fn level_tile_sizes(&self) -> Vec<Dimension> {
         self.decoder.level_tile_sizes()
     }
 
-    /// Returns the grid range for each level as a vector of 
+    /// Returns the grid range for each level as a vector of
     /// (horizontal_tile_count, vertical_tile_count) tuples.
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = levelTileRanges, getter)]
     pub fn level_tile_ranges(&self) -> Vec<TileRange> {
         self.decoder.level_tile_ranges()
     }
 
     /// Returns the format of slide.
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = slideFormat, getter)]
     pub fn slide_format(&self) -> String {
         self.decoder.decoder.slide_format().to_string()
     }

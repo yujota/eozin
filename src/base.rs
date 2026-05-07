@@ -1,7 +1,9 @@
 use crate::error::EozinError;
 use std::marker::PhantomData;
 
+#[allow(dead_code)]
 pub(crate) const MAX_ALLOCATION: u64 = 2 * 1024 * 1024 * 1024;
+#[allow(dead_code)]
 pub(crate) const MAX_LOOP_COUNT: usize = 1024 * 1024;
 
 #[cfg(any(feature = "wasm-node", feature = "wasm-web"))]
@@ -35,11 +37,10 @@ pub(crate) enum ImageType {
     Tiff,
 }
 
-
-/// Contains the encoded tile byte sequence, dimensions, and image format 
+/// Contains the encoded tile byte sequence, dimensions, and image format
 /// information.
 ///
-/// This struct implements `Deref<Target = [u8]>` and `AsRef<[u8]>`, allowing it to be used 
+/// This struct implements `Deref<Target = [u8]>` and `AsRef<[u8]>`, allowing it to be used
 /// directly as an encoded byte slice.
 ///
 /// ```rust,no_run
@@ -87,8 +88,8 @@ impl Tile {
     }
 
     /// Returns the `ImageFormat` from the `image` crate.
-    /// 
-    /// Note: The current `image` crate does not support JPEG 2000. 
+    ///
+    /// Note: The current `image` crate does not support JPEG 2000.
     /// If the tile is encoded in JPEG 2000, this method returns `None`.
     ///
     /// This method requires the `image` feature.
@@ -103,8 +104,8 @@ impl Tile {
     }
 
     /// Returns the encoded tile as a `DynamicImage` from the `image` crate.
-    /// 
-    /// If the tile is encoded in JPEG 2000, it will be automatically 
+    ///
+    /// If the tile is encoded in JPEG 2000, it will be automatically
     /// converted to a format compatible with the `image` crate.
     ///
     /// This method requires the `image` feature.
@@ -156,7 +157,7 @@ impl Tile {
 #[cfg_attr(any(feature = "wasm-web", feature = "wasm-node"), wasm_bindgen)]
 impl Tile {
     /// Returns the MIME type of the encoded tile image.
-    #[cfg_attr(any(feature = "wasm-web", feature = "wasm-node"), wasm_bindgen)]
+    #[cfg_attr(any(feature = "wasm-web", feature = "wasm-node"), wasm_bindgen(js_name = mimeType, getter))]
     pub fn mime_type(&self) -> String {
         let s = match self.image_type {
             ImageType::Jp2kRgb | ImageType::Jp2kYCbCr => "image/jp2",
@@ -177,18 +178,18 @@ impl Tile {
     /// No format conversion is performed.
     ///
     /// This method requires the `wasm-node` or `wasm-web` feature.
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = toUint8Array)]
     pub fn to_uint8array(&self) -> Result<Uint8Array, EozinError> {
         let array = Uint8Array::new_from_slice(&self.buf);
         Ok(array)
     }
 
     /// Returns the tile as a `Blob`.
-    /// 
-    /// Formats not natively supported by browsers (such as TIFF or JPEG 2000) 
+    ///
+    /// Formats not natively supported by browsers (such as TIFF or JPEG 2000)
     /// are automatically converted to PNG.
     ///
-    /// Note: The `Tile::mime_type()` method returns the original image format, 
+    /// Note: The `Tile::mime_type()` method returns the original image format,
     /// which may differ from the MIME type of the `Blob` returned here.
     ///
     /// This method requires the `wasm-web` feature.
@@ -208,7 +209,7 @@ impl Tile {
     /// # }
     /// ```
     #[cfg(feature = "wasm-web")]
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = toBlob)]
     pub fn to_blob(&self) -> Result<Blob, EozinError> {
         let (arr, mime) = match self.image_type {
             ImageType::Jpeg => (Uint8Array::new_from_slice(&self.buf), "image/jpeg"),

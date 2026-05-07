@@ -1,0 +1,20 @@
+{
+  "name": "js-eozin",
+  "version": "1.0.0",
+  "description": "Build JS bindings for JavaScript for eozin",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "build:node": "node scripts/build.js @eozin/eozin-node",
+    "build:web": "node scripts/build.js @eozin/eozin-web"
+  },
+  "devDependencies": {
+    "sort-package-json": "^3.6.1",
+    "typescript": "^6.0.2",
+    "remark": "^15.0.1",
+    "remark-gfm": "^4.0.1"
+  },
+  "dependencies": {}
+}
