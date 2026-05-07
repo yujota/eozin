@@ -22,7 +22,7 @@ jobs:
         run: |
           pip install mkdocs-material mkdocstrings[python]
           mkdocs build -f py-eozin/python/mkdocs.yml
-          cp -r python/site/* public/docs/python/
+          cp -r py-eozin/python/site/* public/docs/python/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
