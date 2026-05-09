@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eozin | Pure-Rust Digital Pathology Decoder</title>
+  <link rel="stylesheet" href="src/style.css">
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="#" class="nav-logo">Eozin</a>
+      <ul class="nav-links">
+        <li class="dropdown">
+          <a href="javascript:void(0)" class="dropbtn">Docs ▾</a>
+          <div class="dropdown-content">
+            <a href="https://docs.rs/eozin/latest/eozin/">Rust Docs</a>
+            <a href="https://eozin.org/docs/js/">JS Docs</a>
+            <a href="https://eozin.org/docs/python/">Py Docs</a>
+          </div>
+        </li>
+        <!--<li><a href="demo.html">Demo</a></li>-->
+        <li><a href="https://github.com/yujota/eozin" target="_blank">GitHub</a></li>
+      </ul>
+    </div>
+  </nav>
+  <header class="hero">
+    <div class="container">
+      <h1>Eozin</h1>
+      <p class="hero-desc">
+        A high-performance, pure-Rust decoder library specifically engineered for digital pathology images.
+      </p>
+    </div>
+  </header>
+
+  <section class="section container">
+    <h2>Key Features</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="feature-icon">🚀</div>
+        <h3>High Performance</h3>
+        <p>Leverages Rust's zero-cost abstractions to achieve high-speed tile decoding with minimal memory footprint.
+        </p>
+      </div>
+      <div class="card">
+        <div class="feature-icon">🛡️</div>
+        <h3>Pure Rust</h3>
+        <p>No dependencies on C/C++ libraries. Ensures easy distribution across platforms with guaranteed memory safety.
+        </p>
+      </div>
+      <div class="card">
+        <div class="feature-icon">🌐</div>
+        <h3>WASM Ready</h3>
+        <p>Perfect for browser-based pathology viewers. Supports ultra-fast rendering via WebAssembly integration.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="background: #f1f5f9;">
+    <div class="container">
+      <h2>Multi-Language Support</h2>
+      <div class="grid">
+        <!-- Python -->
+        <div class="card python">
+          <span class="badge">Python</span>
+          <h3>Eozin for Python</h3>
+          <p>Native bindings powered by PyO3 for data science workflows.</p>
+          <div class="code-block">pip install eozin</div>
+          <div class="card-links">
+            <a href="https://pypi.org/project/eozin/" target="_blank">PyPI</a> •
+            <a href="https://eozin.org/docs/python/" target="_blank">Docs</a> •
+            <a href="https://github.com/yujota/eozin/tree/main/py-eozin" target="_blank">Source</a>
+          </div>
+        </div>
+
+        <!-- JavaScript -->
+        <div class="card js">
+          <span class="badge">JavaScript / WASM</span>
+          <h3>Eozin for JS</h3>
+          <p>Universal support for Browsers and Node.js via WASM.</p>
+          <div class="code-block">npm install @eozin/eozin-web</div>
+          <div class="card-links">
+            <a href="https://www.npmjs.com/package/@eozin/eozin-web" target="_blank">NPM (Web)</a> •
+            <a href="https://www.npmjs.com/package/@eozin/eozin-node" target="_blank">NPM (Node)</a> •
+            <a href="https://eozin.org/docs/js/" target="_blank">Docs</a> •
+            <a href="https://github.com/yujota/eozin/tree/main/js-eozin" target="_blank">Source</a>
+          </div>
+        </div>
+
+        <!-- Rust -->
+        <div class="card rust">
+          <span class="badge">Rust</span>
+          <h3>Rust Core</h3>
+          <p>The high-efficiency core engine for native applications.</p>
+          <div class="code-block">cargo add eozin</div>
+          <div class="card-links">
+            <a href="https://crates.io/crates/eozin" target="_blank">Crates.io</a> •
+            <a href="https://docs.rs/eozin/latest/eozin/" target="_blank">Docs</a> •
+            <a href="https://github.com/yujota/eozin" target="_blank">Source</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h3>Eozin Project</h3>
+          <p>Pure-Rust Digital Pathology Tools</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://github.com/yujota/eozin">GitHub</a>
+          <a href="https://docs.rs/eozin/">Rust Docs</a>
+          <a href="https://eozin.org/docs/python/">Python Docs</a>
+          <a href="https://eozin.org/docs/js/">JS Docs</a>
+        </div>
+      </div>
+      <hr style="opacity: 0.1; margin: 30px 0;">
+      <p style="font-size: 0.8rem; opacity: 0.7;">
+        &copy; 2022-2026 Eozin Project.
+      </p>
+    </div>
+  </footer>
+
+</body>
+
+</html>

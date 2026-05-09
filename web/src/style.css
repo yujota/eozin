@@ -1,0 +1,271 @@
+:root {
+  --primary: #2c3e50;
+  --accent: #3498db;
+  --rust: #ce412b;
+  --python: #3776ab;
+  --js: #f7df1e;
+  --bg: #f8fafc;
+  --text: #334155;
+  --nav-bg: rgba(44, 62, 80, 0.95);
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0;
+  background-color: var(--bg);
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--nav-bg);
+  color: white;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+.nav-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+.nav-links a:hover {
+  opacity: 1;
+}
+
+/* Dropdown Menu */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 8px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.dropdown-content a {
+  color: var(--primary) !important;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+  opacity: 1 !important;
+  font-size: 0.9rem;
+}
+
+.dropdown-content a:hover {
+  background-color: #f1f5f9;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+/* Hero */
+.hero {
+  background: linear-gradient(135deg, var(--primary) 0%, #1a252f 100%);
+  color: white;
+  padding: 120px 20px;
+  text-align: center;
+}
+
+.tagline {
+  font-style: italic;
+  color: #bdc3c7;
+  font-size: 1.2rem;
+  margin-bottom: 10px;
+}
+
+h1 {
+  font-size: 3.5rem;
+  margin: 0;
+  letter-spacing: -1px;
+}
+
+.hero-desc {
+  font-size: 1.4rem;
+  max-width: 700px;
+  margin: 20px auto;
+  opacity: 0.9;
+}
+
+/* Sections */
+.section {
+  padding: 80px 0;
+}
+
+.section-intro {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 40px auto;
+}
+
+h2 {
+  text-align: center;
+  font-size: 2.2rem;
+  color: var(--primary);
+  margin-bottom: 40px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+/* Cards */
+.card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border-top: 4px solid var(--accent);
+  display: flex;
+  flex-direction: column;
+}
+
+.card.rust {
+  border-top-color: var(--rust);
+}
+
+.card.python {
+  border-top-color: var(--python);
+}
+
+.card.js {
+  border-top-color: var(--js);
+}
+
+.card h3 {
+  margin-top: 0;
+  color: var(--primary);
+}
+
+.card-links {
+  margin-top: auto;
+  padding-top: 20px;
+  font-size: 0.85rem;
+  color: #64748b;
+  line-height: 1.8;
+}
+
+.card-links a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.card-links a:hover {
+  text-decoration: underline;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  background: #e2e8f0;
+  color: var(--primary);
+  text-transform: uppercase;
+}
+
+/* Code */
+.code-block {
+  background: #1e293b;
+  color: #f8fafc;
+  padding: 20px;
+  border-radius: 8px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.85rem;
+  overflow-x: auto;
+  margin-bottom: 15px;
+}
+
+/* Footer */
+footer {
+  background: var(--primary);
+  color: white;
+  padding: 60px 0 30px 0;
+}
+
+.footer-grid {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+.footer-links {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+footer a {
+  color: white;
+  text-decoration: none;
+  opacity: 0.7;
+  font-size: 0.9rem;
+}
+
+footer a:hover {
+  opacity: 1;
+}
+
+@media (max-width: 600px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+
+  .footer-grid {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-links {
+    justify-content: center;
+  }
+}

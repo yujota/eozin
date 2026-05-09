@@ -77,8 +77,39 @@ jobs:
           name: docs-js
           path: public
 
+  build-lp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Public Folder
+        run: mkdir -p public/
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install build script dependencies
+        run: |
+          cd web
+          npm ci
+          cp -r dist/* ../public/
+
+      - name: Build LP Web Page with Vite
+        run: |
+          cd web
+          npm run build
+
+      - name: Upload LP part
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-lp
+          path: public
+
   deploy:
-    needs: [build-python, build-js]
+    needs: [build-python, build-js, build-lp]
 
     permissions:
       pages: write
