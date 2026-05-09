@@ -95,12 +95,12 @@ jobs:
         run: |
           cd web
           npm ci
-          cp -r dist/* ../public/
 
       - name: Build LP Web Page with Vite
         run: |
           cd web
           npm run build
+          cp -r dist/* ../public/
 
       - name: Upload LP part
         uses: actions/upload-artifact@v4
