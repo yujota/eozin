@@ -28,3 +28,5 @@ Cargo.lock
 *.jpg
 *.jpeg
 *.tiff
+
+!web/assets/CMU-1-Small-Region.svs
