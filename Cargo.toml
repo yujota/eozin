@@ -4,7 +4,7 @@ members = [
     "fuzz",
     "examples/*",
     "py-eozin",
-    "js-eozin",
+    "js-eozin", "viewer",
 ]
 exclude = [
     "fuzz",
