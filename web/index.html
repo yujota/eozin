@@ -35,6 +35,18 @@
     </div>
   </header>
 
+  <section class="section" style="background: #f1f5f9;">
+    <div class="container">
+      <h2>Live Demo</h2>
+      <p>Client-side rendering of digital pathology images</p>
+      <p>Decoding slides that use JPEG2000 for internal image encoding may take some time.</p>
+      <input type="file" id="eozin-viewer-file-input">
+      <div id="canvas-area">
+        <canvas id="eozin-wasm-viewer"  width="1000"  height="600"></canvas>
+      </div>
+    </div>
+  </section>
+
   <section class="section container">
     <h2>Key Features</h2>
     <div class="grid">
@@ -104,6 +116,7 @@
       </div>
     </div>
   </section>
+
   <footer>
     <div class="container">
       <div class="footer-grid">
@@ -125,6 +138,7 @@
     </div>
   </footer>
 
+  <script type="module" src="/src/main.ts"></script>
 </body>
 
 </html>
