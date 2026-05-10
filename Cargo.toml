@@ -7,7 +7,7 @@ members = [
     "js-eozin", "viewer",
 ]
 exclude = [
-    "fuzz",
+    "fuzz"
 ]
 
 [workspace.package]
@@ -29,6 +29,14 @@ version.workspace = true
 authors.workspace = true
 license.workspace = true
 edition.workspace = true
+
+exclude = [
+    "fuzz",
+    "assets/*",
+    "web/*",
+    ".github/*",
+    "CNAME",
+]
 
 
 [package.metadata.docs.rs]
