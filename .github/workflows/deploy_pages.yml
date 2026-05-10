@@ -85,6 +85,12 @@ jobs:
       - name: Setup Public Folder
         run: mkdir -p public/
 
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
