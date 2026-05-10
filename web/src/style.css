@@ -269,3 +269,72 @@ footer a:hover {
     justify-content: center;
   }
 }
+
+.section {
+  padding: 80px 0;
+  text-align: center;
+}
+
+.section h2 {
+  color: var(--primary);
+  margin-bottom: 10px;
+}
+
+.section p {
+  color: var(--text);
+  max-width: 700px;
+  margin: 0 auto 15px;
+}
+
+.section p:nth-of-type(2) {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 30px;
+}
+
+/* モダンなファイル入力ボタンのスタイル */
+#eozin-viewer-file-input {
+  display: block;
+  margin: 0 auto 40px;
+  font-family: inherit;
+  color: var(--text);
+}
+
+#eozin-viewer-file-input::file-selector-button {
+  background-color: var(--accent);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin-right: 15px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+#eozin-viewer-file-input::file-selector-button:hover {
+  background-color: #2980b9;
+  transform: translateY(-1px);
+}
+
+#eozin-viewer-file-input::file-selector-button:active {
+  transform: translateY(0);
+}
+
+#canvas-area {
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  max-width: 100%;
+  border: 1px solid #e2e8f0;
+}
+
+#eozin-wasm-viewer {
+  display: block;
+  max-width: 100%;
+  border-radius: 4px;
+  background-color: #ffffff;
+}

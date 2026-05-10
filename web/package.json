@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "npm run build:rust && npm run build:ts",
+    "build:ts": "tsc && vite build",
+    "build:rust": "cd ../viewer && wasm-pack build --target web --release --out-name eozin --out-dir ../web/pkg/",
+    "build:rust:dev": "cd ../viewer && wasm-pack build --target web --debug --out-name eozin --out-dir ../web/pkg/",
     "preview": "vite preview"
   },
   "devDependencies": {
