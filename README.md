@@ -9,6 +9,8 @@
 [![JS Docs](https://img.shields.io/badge/docs-JavaScript-yellow.svg?style=flat-square&logo=mdbook&logoColor=black)](https://eozin.org/docs/js/)
 [![Rust Docs](https://img.shields.io/badge/docs-Rust-black.svg?style=flat-square&logo=rust&logoColor=white)](https://docs.rs/eozin/latest/eozin/)
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-blue.svg)](https://eozin.org/)
+
 Eozin is a pure-Rust decoder library for digital pathology.
 The library's primary purpose is to provide efficient access to individual tiles within 
 digital pathology images.
