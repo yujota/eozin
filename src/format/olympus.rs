@@ -25,6 +25,7 @@ impl DecoderConstructor for EtsDecoderConstructor {}
 #[derive(Debug)]
 pub struct EtsDecoder {
     levels: Vec<EtsLevel>,
+    header: EtsHeader,
     tile_width: u64,
     tile_height: u64,
 }
@@ -174,6 +175,7 @@ impl EtsDecoder {
         }
         Ok(EtsDecoder {
             levels,
+            header: ets_header.clone(),
             tile_width: tw as u64,
             tile_height: th as u64,
         })
@@ -213,6 +215,12 @@ impl EtsDecoder {
 impl LevelInfoHandler for EtsDecoder {
     fn get_level(&self, i: usize) -> Option<LevelInfo> {
         let lv = self.levels.get(i)?;
+        let image_type = match self.header.compression {
+            EtsCompressionType::Jpeg => Some(ImageType::Jpeg),
+            EtsCompressionType::Jpeg2k => Some(ImageType::Jp2kRgb),
+            EtsCompressionType::Bmp => Some(ImageType::Bmp),
+            _ => None,
+        }?;
         Some(LevelInfo {
             width: lv.width,
             height: lv.height,
@@ -220,7 +228,7 @@ impl LevelInfoHandler for EtsDecoder {
             tile_height: self.tile_height,
             tile_range_x: lv.tile_range_x as usize,
             tile_range_y: lv.tile_range_y as usize,
-            image_type: ImageType::Jpeg,
+            image_type
         })
     }
     fn level_count(&self) -> usize {
@@ -306,7 +314,7 @@ impl SisHeader {
 
 // Olympus ETS Header
 #[allow(dead_code)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct EtsHeader {
     pub version: u32,
     pub pixel_type: EtsPixelType,
@@ -394,7 +402,7 @@ impl EtsTile {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum EtsPixelType {
     Char,   // 1 i8
     Uchar,  // 2 u8
@@ -402,13 +410,13 @@ pub enum EtsPixelType {
     Ushort, // 4 u16
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum EtsColorSpace {
     Fluorescence, // 1
     Brightfield,  // 4
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum EtsCompressionType {
     Raw,          // 0
     Jpeg,         // 2
