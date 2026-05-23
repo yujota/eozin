@@ -1,5 +1,14 @@
 # Eozin: <small>The *dye-namic solution* for digital pathology</small>
 
+[![PyPI version](https://img.shields.io/pypi/v/eozin.svg?style=flat-square&logo=python&logoColor=white)](https://pypi.org/project/eozin/)
+[![crates.io version](https://img.shields.io/crates/v/eozin.svg?style=flat-square&logo=rust&logoColor=white)](https://crates.io/crates/eozin)
+[![npm version web](https://img.shields.io/npm/v/%40eozin/eozin-web.svg?style=flat-square&logo=npm&logoColor=white&label=npm&3Aeozin-web)](https://www.npmjs.com/package/@eozin/eozin-web)
+[![npm version node](https://img.shields.io/npm/v/%40eozin/eozin-node.svg?style=flat-square&logo=npm&logoColor=white&label=npm%3Aeozin-node)](https://www.npmjs.com/package/@eozin/eozin-node)
+
+[![Python Docs](https://img.shields.io/badge/docs-Python-blue.svg?style=flat-square&logo=mdbook&logoColor=white)](https://eozin.org/docs/python/)
+[![JS Docs](https://img.shields.io/badge/docs-JavaScript-yellow.svg?style=flat-square&logo=mdbook&logoColor=black)](https://eozin.org/docs/js/)
+[![Rust Docs](https://img.shields.io/badge/docs-Rust-black.svg?style=flat-square&logo=rust&logoColor=white)](https://docs.rs/eozin/latest/eozin/)
+
 Eozin is a pure-Rust decoder library for digital pathology.
 The library's primary purpose is to provide efficient access to individual tiles within 
 digital pathology images.
