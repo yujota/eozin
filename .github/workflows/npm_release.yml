@@ -27,6 +27,7 @@ jobs:
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
+          generate-provenance-statements: true
 
       - name: Install build script dependencies
         run: |
