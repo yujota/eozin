@@ -11,7 +11,7 @@ exclude = [
 ]
 
 [workspace.package]
-version = "0.1.0-alpha.1"
+version = "0.1.0-alpha.2"
 authors = ["Yuji Ota <yujota.oss@gmail.com>"]
 license = "BSD-3-Clause"
 edition = "2024"
