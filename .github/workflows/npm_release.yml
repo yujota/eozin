@@ -25,25 +25,34 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
-          generate-provenance-statements: true
 
       - name: Install build script dependencies
         run: |
           cd js-eozin
           npm ci
 
-      - name: Build and Publish Web Package
+      - name: Build Web Package
         run: |
           cd js-eozin
           node scripts/build.js @eozin/eozin-web
-          cd npm-packages/web
-          npm publish --provenance --access public
 
-      - name: Build and Publish Node Package
+      - name: Publish Web Package
+        uses: js-devtools/npm-publish@v3
+        with:
+          package: ./js-eozin/npm-packages/web/package.json
+          provenance: true
+          access: public
+
+      - name: Build Node Package
         run: |
           cd js-eozin
           node scripts/build.js @eozin/eozin-node
-          cd npm-packages/node
-          npm publish --provenance --access public
+
+      - name: Publish Node Package
+        uses: js-devtools/npm-publish@v3
+        with:
+          package: ./js-eozin/npm-packages/node/package.json
+          provenance: true
+          access: public
