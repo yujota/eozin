@@ -42,5 +42,5 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
-          cd js-eozin/npm-packages/node
+          cd js-eozin/npm-packages/web
           npm publish
