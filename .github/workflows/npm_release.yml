@@ -42,6 +42,7 @@ jobs:
         uses: js-devtools/npm-publish@v3
         with:
           package: ./js-eozin/npm-packages/web/package.json
+          token: ""
           provenance: true
           access: public
 
@@ -54,5 +55,6 @@ jobs:
         uses: js-devtools/npm-publish@v3
         with:
           package: ./js-eozin/npm-packages/node/package.json
+          token: ""
           provenance: true
           access: public
