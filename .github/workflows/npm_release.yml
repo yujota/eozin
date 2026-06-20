@@ -33,11 +33,14 @@ jobs:
           cd js-eozin
           npm ci
 
-      - name: Build and Publish Web Package
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Build Web Package
         run: |
           cd js-eozin
           node scripts/build.js @eozin/eozin-web
-          cd npm-packages/node
+
+      - name: Publish Web Package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          cd js-eozin/npm-packages/node
           npm publish
