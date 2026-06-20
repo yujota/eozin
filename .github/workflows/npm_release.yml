@@ -42,19 +42,4 @@ jobs:
         uses: js-devtools/npm-publish@v3
         with:
           package: ./js-eozin/npm-packages/web/package.json
-          token: ""
-          provenance: true
-          access: public
 
-      - name: Build Node Package
-        run: |
-          cd js-eozin
-          node scripts/build.js @eozin/eozin-node
-
-      - name: Publish Node Package
-        uses: js-devtools/npm-publish@v3
-        with:
-          package: ./js-eozin/npm-packages/node/package.json
-          token: ""
-          provenance: true
-          access: public
